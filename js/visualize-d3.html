@@ -3,228 +3,538 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pools (D3)</title>
+<title>Pools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #f7f7f7;
-    overflow: hidden;
-  }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f7f7f7;
+  overflow: hidden;
+}
 
-  h1 {
-    position: absolute;
-    top: 18px;
-    left: 24px;
-    font-size: 20px;
-    font-weight: 600;
-    color: #222;
-    z-index: 5;
-  }
+h1 {
+  position: absolute;
+  top: 18px;
+  left: 24px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+  z-index: 5;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.5px;
+}
 
-  .frame {
-    position: absolute;
-    top: 60px;
-    left: 24px;
-    right: 24px;
-    bottom: 24px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background: #fff;
-    overflow: hidden;
-  }
+.frame {
+  position: absolute;
+  top: 60px;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  background: #fff;
+  overflow: hidden;
+}
 
-  svg#viz {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
+svg#viz {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
 
-  .topbar {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    z-index: 4;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    padding: 8px 10px 8px 18px;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-    color: #333;
-  }
+/* ---- TOPBAR ---- */
+.topbar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-  .topbar .collection { font-weight: 600; }
+.topbar-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  border: 2px solid #000;
+  background: #fff;
+  border-radius: 20px;
+  padding: 7px 16px;
+  cursor: pointer;
+  color: #000;
+  white-space: nowrap;
+  line-height: 1;
+}
 
-  .topbar button {
-    font-family: inherit;
-    font-size: 12px;
-    border: 1px solid #ccc;
-    background: #fafafa;
-    border-radius: 14px;
-    padding: 6px 14px;
-    cursor: pointer;
-    color: #333;
-  }
+.topbar-btn:hover { background: #f0f0f0; }
+.topbar-btn.active { background: #000; color: #fff; }
+.topbar-btn.active:hover { background: #222; }
 
-  .topbar button:hover { background: #eee; }
+/* ---- ARE.NA PANEL ---- */
+#arena-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 40;
+  display: none;
+  background: #fff;
+  border: 1.5px solid #000;
+  border-radius: 14px;
+  padding: 14px 16px 16px;
+  width: 280px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+  font-family: 'Inter', sans-serif;
+}
+#arena-panel label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #555;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+#arena-panel .arena-hint {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.arena-input-row {
+  display: flex;
+  gap: 6px;
+}
+#arena-slug-input {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  padding: 7px 10px;
+  outline: none;
+  color: #111;
+}
+#arena-slug-input:focus { border-color: #000; }
+#arena-fetch-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#arena-fetch-btn:hover { background: #333; }
+#arena-fetch-btn:disabled { background: #aaa; cursor: default; }
+#arena-status {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #555;
+  min-height: 16px;
+  line-height: 1.4;
+}
 
-  .zoom {
-    position: absolute;
-    bottom: 16px;
-    right: 16px;
-    z-index: 4;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #fff;
-  }
+#collection-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #000;
+  padding: 0 6px;
+  letter-spacing: 0.5px;
+}
 
-  .zoom button {
-    width: 32px;
-    height: 32px;
-    border: none;
-    background: #fff;
-    font-size: 16px;
-    cursor: pointer;
-    color: #333;
-  }
+/* ---- DETAIL TITLE (pool label centered) ---- */
+#detail-title {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: #000;
+  display: none;
+  white-space: nowrap;
+  cursor: default;
+  border-radius: 6px;
+  padding: 3px 8px;
+  outline: none;
+  transition: background 0.15s;
+}
+#detail-title:hover {
+  background: rgba(0,0,0,0.06);
+  cursor: text;
+}
+#detail-title[contenteditable="true"] {
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.18);
+  cursor: text;
+}
 
-  .zoom button:first-child { border-bottom: 1px solid #ccc; }
-  .zoom button:hover { background: #eee; }
+/* ---- ZOOM CONTROLS ---- */
+.zoom {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #000;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
 
-  .status {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 3;
-    font-size: 13px;
-    color: #888;
-  }
+.zoom button {
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  color: #000;
+  font-family: 'Inter', sans-serif;
+  line-height: 1;
+}
 
-  .tooltip {
-    position: absolute;
-    z-index: 6;
-    pointer-events: none;
-    background: rgba(30, 30, 30, 0.92);
-    color: #fff;
-    padding: 8px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    max-width: 260px;
-    line-height: 1.4;
-    display: none;
-  }
+.zoom button:first-child { border-bottom: 1px solid #ccc; }
+.zoom button:hover { background: #f0f0f0; }
 
-  .detail-title {
-    position: absolute;
-    top: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 4;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 1.5px;
-    color: #333;
-    display: none;
-  }
+/* ---- STATUS & TOOLTIP ---- */
+.status {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  font-size: 13px;
+  color: #888;
+  font-family: 'Inter', sans-serif;
+}
 
-  #backBtn { display: none; }
+.tooltip {
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  max-width: 220px;
+  line-height: 1.4;
+  display: none;
+}
 
-  .note-card {
-    position: absolute;
-    z-index: 8;
-    width: 190px;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-    padding: 10px 12px;
-  }
+/* ---- DETAIL VIEW ---- */
+#detail-view {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  display: none;
+  overflow: hidden;
+}
 
-  .note-close {
-    position: absolute;
-    top: 4px;
-    right: 8px;
-    border: none;
-    background: none;
-    font-size: 14px;
-    line-height: 1;
-    cursor: pointer;
-    color: #999;
-  }
+#detail-canvas {
+  position: absolute;
+  transform-origin: 0 0;
+}
 
-  .note-close:hover { color: #000; }
+#lines-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+  pointer-events: none;
+}
 
-  .note-source {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #999;
-    margin-bottom: 6px;
-    padding-right: 14px;
-  }
+.connection-line {
+  stroke: #6a6a6a;
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  fill: none;
+}
 
-  .note-text {
-    font-size: 12px;
-    line-height: 1.5;
-    color: #333;
-    white-space: pre-wrap;
-  }
+.connection-hit {
+  stroke: transparent;
+  stroke-width: 14;
+  fill: none;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.annot-line {
+  stroke: #6a6a6a;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  fill: none;
+  pointer-events: none;
+}
+
+.temp-line {
+  stroke: #555;
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  fill: none;
+  pointer-events: none;
+}
+
+/* ---- SOURCE CARD ---- */
+.source-card {
+  position: absolute;
+  width: 306px;
+  min-height: 358px;
+  background: #000;
+  border: 2px solid #000;
+  color: #fff;
+  padding: 16px 13px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  user-select: none;
+  cursor: grab;
+}
+
+.source-card:active { cursor: grabbing; }
+
+.source-card .card-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  flex-shrink: 0;
+  line-height: normal;
+}
+
+.source-card .card-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 21px;
+  color: #fff;
+  flex: 1;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* + handle on card right edge */
+.card-handle {
+  position: absolute;
+  right: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 400;
+  cursor: pointer;
+  z-index: 20;
+  color: #000;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.source-card:hover .card-handle,
+.annotation-card:hover .card-handle {
+  display: flex;
+}
+
+/* connect-mode: highlight potential target cards */
+.source-card.connect-target-hint,
+.annotation-card.connect-target-hint {
+  outline: 2px dashed #555;
+  outline-offset: 3px;
+}
+
+/* ---- ANNOTATION CARD ---- */
+.annotation-card {
+  position: absolute;
+  min-width: 260px;
+  min-height: 260px;
+  background: #fff;
+  border: 2px solid #6a6a6a;
+  border-radius: 20px;
+  padding: 14px 12px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  user-select: none;
+  cursor: grab;
+  z-index: 12;
+}
+
+.annotation-card:active { cursor: grabbing; }
+
+.annotation-card .annot-label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  color: #969696;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.annotation-card .annot-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 21px;
+  color: #000;
+  flex: 1;
+  min-height: 80px;
+  outline: none;
+  cursor: text;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.annotation-card .annot-text:empty::before {
+  content: attr(data-placeholder);
+  color: #ccc;
+  pointer-events: none;
+}
+
+/* ❉ minimized annotation icon */
+.annot-icon {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid #6a6a6a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 12;
+  user-select: none;
+}
+
+/* ---- CONTEXT MENU ---- */
+#context-menu {
+  position: absolute;
+  z-index: 30;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ctx-item {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  background: #fff;
+  border: 1px solid #c0c0c0;
+  border-radius: 20px;
+  padding: 6px 13px;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  color: #000;
+}
+
+.ctx-item:hover { background: #f5f5f5; }
+
+/* connect-source mode cursor hint */
+.connect-mode-active #detail-canvas {
+  cursor: crosshair;
+}
 </style>
 </head>
 <body>
-  <h1>Pools (D3)</h1>
-  <div class="frame">
-    <svg id="viz">
-      <defs>
-        <filter id="blob-blur" x="-100%" y="-100%" width="300%" height="300%">
-          <feGaussianBlur stdDeviation="8" />
-        </filter>
-        <radialGradient id="detail-gradient" cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stop-color="#ffffff" />
-          <stop offset="100%" stop-color="#d8d8d8" />
-        </radialGradient>
-      </defs>
-      <g class="viewport">
-        <g class="overview">
-          <g class="links"></g>
-          <g class="blobs"></g>
-          <g class="labels"></g>
-        </g>
-        <g class="detail" style="display:none">
-          <rect class="detail-bg" x="-3000" y="-3000" width="6000" height="6000" fill="url(#detail-gradient)"></rect>
-          <g class="doc-links"></g>
-          <g class="doc-boxes"></g>
-          <g class="markers"></g>
-        </g>
+<div class="frame" id="frame">
+
+  <!-- overview SVG -->
+  <svg id="viz">
+    <defs>
+      <filter id="blob-blur" x="-100%" y="-100%" width="300%" height="300%">
+        <feGaussianBlur stdDeviation="10" />
+      </filter>
+    </defs>
+    <g class="viewport">
+      <g class="overview">
+        <g class="links"></g>
+        <g class="blobs"></g>
+        <g class="labels"></g>
       </g>
-      <g class="connectors"></g>
-    </svg>
-    <div class="topbar">
-      <button id="backBtn">&larr; Pools</button>
-      <span class="collection">COLLECTION</span>
-      <button id="uploadBtn">+ UPLOAD</button>
+    </g>
+  </svg>
+
+  <!-- detail view: colored bg + cards canvas -->
+  <div id="detail-view">
+    <div id="detail-canvas">
+      <svg id="lines-svg">
+        <g id="annot-lines-group"></g>
+        <g id="connections-group"></g>
+        <g id="temp-line-group"></g>
+      </svg>
     </div>
-    <div class="detail-title" id="detailTitle"></div>
-    <div class="zoom">
-      <button id="zoomIn">+</button>
-      <button id="zoomOut">&minus;</button>
-    </div>
-    <div class="status" id="status">Loading embeddings...</div>
-    <div class="tooltip" id="tooltip"></div>
   </div>
 
+  <!-- topbar -->
+  <div class="topbar">
+    <span id="collection-name" style="display: none"></span>
+    <button class="topbar-btn" id="uploadBtn">+ UPLOAD</button>
+    <div style="position:relative">
+      <button class="topbar-btn" id="connectBtn">✶ CONNECT</button>
+      <div id="arena-panel">
+        <label>Paste Are.na channel slug</label>
+        <p class="arena-hint">Only public channels. Text blocks only.<br>Paste a URL or just the slug.</p>
+        <div class="arena-input-row">
+          <input type="text" id="arena-slug-input" placeholder="are.na/username/channel or channel-slug" autocomplete="off" spellcheck="false" />
+          <button id="arena-fetch-btn">Pull</button>
+        </div>
+        <div id="arena-status"></div>
+      </div>
+    </div>
+    <button class="topbar-btn" id="exportBtn">↑ EXPORT</button>
+  </div>
+
+  <div id="detail-title"></div>
+
+  <div class="zoom">
+    <button id="zoomIn">+</button>
+    <button id="zoomOut">−</button>
+  </div>
+
+  <div class="status" id="status">Loading embeddings…</div>
+  <div class="tooltip" id="tooltip"></div>
+
+  <div id="context-menu">
+    <button class="ctx-item" id="ctx-annotate">Annotate</button>
+    <button class="ctx-item" id="ctx-connect">Connect source</button>
+  </div>
+</div>
+
 <script>
+// ---- Color palette (from Figma) ----
+const POOL_COLORS = ['#3b68ff', '#ffa3a0', '#93ffb9', '#d3b0f9', '#eefb34', '#c93b16'];
+const ZOOM_TO_DETAIL_K = 2.0;  // overview k threshold → auto-enter detail
+const ZOOM_TO_POOLS_K  = 0.18; // detail k threshold → auto-exit back to overview
+
+// ---- Stopwords ----
 const STOPWORDS = new Set([
   'this','that','these','those','with','from','have','has','had','were','was',
   'been','being','they','them','their','there','then','than','which','what',
@@ -234,38 +544,38 @@ const STOPWORDS = new Set([
   'should','could','shall','must','might','does','done','doing','your','ours',
   'yours','herself','himself','itself','ourselves','themselves','being',
   'here','above','below','again','further','once','page','pages','document',
-  'section','including','including','http','https','www'
+  'section','including','http','https','www'
 ]);
 
-let statusEl, tooltipEl, detailTitleEl, backBtnEl, frameEl;
-let svg, viewport, overviewLayer, linkLayer, blobLayer, labelLayer;
-let detailLayer, docLinkLayer, docBoxLayer, markerLayer, connectorLayer;
-let zoomBehavior;
+// ---- DOM refs (populated in init) ----
+let frameEl, statusEl, tooltipEl, detailTitleEl, collectionNameEl;
+let detailViewEl, detailCanvasEl;
+let annotLinesGroup, connectionsGroup, tempLineGroup;
+let contextMenuEl;
 
-let mode = 'overview';       // 'overview' | 'detail'
+// ---- D3 refs ----
+let svg, viewport, linkLayer, blobLayer, labelLayer;
+let overviewZoom;
+
+// ---- App state ----
+let mode = 'overview';
 let activePool = null;
-let detailScene = null;      // { docBoxes, markers }
-let openCards = [];          // { marker, el }
+let poolNodes = [];   // stored after simulation so zoom-to-detail can find nearest pool
+let detailTransform = { x: 0, y: 0, k: 1 };
 
-async function loadData() {
-  const res = await fetch('/embeddings');
-  const data = await res.json();
-  if (data.error) {
-    statusEl.textContent = data.error;
-    return;
-  }
-  document.querySelector('.collection').textContent = data.collection.toUpperCase();
+// card canvas positions (chunkId -> { x, y })
+let cardPositions = {};
 
-  const chunks = data.chunks;
-  const k = Math.min(6, Math.max(3, Math.round(Math.sqrt(chunks.length / 2))));
-  const { assignments, centroids } = kmeans(chunks.map(c => c.embedding), k);
-  const { nodes, links } = buildPools(chunks, assignments, centroids);
-  runSimulation(nodes, links);
-  statusEl.style.display = 'none';
-}
+// in-session annotation & connection data
+// annotations: { id, attachType ('card'|'connection'), attachCardId, attachConnId,
+//               text, minimized, x, y, savedCardX, savedCardY, cardEl, iconEl, lineEl }
+let annotations = [];
+let connections = [];  // { id, sourceId, targetId, lineEl, hitLineEl, annotId }
 
-// ---- math helpers (same approach as the p5 version, see VISUALIZE.md) ----
+// context menu state
+let ctxSourceId = null;
 
+// ---- Math helpers (unchanged from original) ----
 function cosineSim(a, b) {
   let dot = 0, na = 0, nb = 0;
   for (let i = 0; i < a.length; i++) { dot += a[i] * b[i]; na += a[i] * a[i]; nb += b[i] * b[i]; }
@@ -276,7 +586,6 @@ function kmeans(vectors, k, iterations = 25) {
   const n = vectors.length;
   const dim = vectors[0].length;
   const centroids = [vectors[Math.floor(Math.random() * n)].slice()];
-
   while (centroids.length < k) {
     const dists = vectors.map(v => {
       let minD = Infinity;
@@ -288,7 +597,6 @@ function kmeans(vectors, k, iterations = 25) {
     for (; idx < n - 1; idx++) { r -= dists[idx]; if (r <= 0) break; }
     centroids.push(vectors[idx].slice());
   }
-
   let assignments = new Array(n).fill(0);
   for (let iter = 0; iter < iterations; iter++) {
     let changed = false;
@@ -305,8 +613,7 @@ function kmeans(vectors, k, iterations = 25) {
     for (let i = 0; i < n; i++) {
       const c = assignments[i];
       counts[c]++;
-      const v = vectors[i];
-      for (let d = 0; d < dim; d++) sums[c][d] += v[d];
+      for (let d = 0; d < dim; d++) sums[c][d] += vectors[i][d];
     }
     for (let c = 0; c < k; c++) {
       if (!counts[c]) continue;
@@ -315,10 +622,6 @@ function kmeans(vectors, k, iterations = 25) {
     if (!changed && iter > 0) break;
   }
   return { assignments, centroids };
-}
-
-function truncateLabel(text, max = 20) {
-  return text.length > max ? text.slice(0, max - 1) + '…' : text;
 }
 
 function extractLabel(text) {
@@ -332,8 +635,44 @@ function extractLabel(text) {
   return top.length ? top.join(' ') : 'POOL';
 }
 
-// ---- turn clusters into d3-force nodes/links ----
+function truncate(text, max = 28) {
+  return text.length > max ? text.slice(0, max - 1) + '…' : text;
+}
 
+// ---- SVG curve helpers ----
+// Gentle S-curve between two points (cubic Bézier with perpendicular offset)
+function twoPointPath(A, B) {
+  const dx = B.x - A.x, dy = B.y - A.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const bend = Math.min(len * 0.12, 36);
+  const px = -dy / len * bend, py = dx / len * bend; // perpendicular unit × bend
+  const cp1 = { x: A.x + dx / 3 + px, y: A.y + dy / 3 + py };
+  const cp2 = { x: A.x + 2 * dx / 3 - px, y: A.y + 2 * dy / 3 - py };
+  return `M ${A.x} ${A.y} C ${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${B.x} ${B.y}`;
+}
+
+// Smooth path through A → M → B with G1 continuity at M
+// (tangent at M follows the overall A→B direction so the curve doesn't kink)
+function threePointPath(A, M, B) {
+  const dx = B.x - A.x, dy = B.y - A.y;
+  const len = Math.hypot(dx, dy) || 1;
+  // Scale tangent at M so each segment looks proportional
+  const d1 = Math.hypot(M.x - A.x, M.y - A.y);
+  const d2 = Math.hypot(B.x - M.x, B.y - M.y);
+  const tScale = Math.min(d1, d2) * 0.38;
+  const tx = dx / len * tScale, ty = dy / len * tScale;
+  return (
+    `M ${A.x} ${A.y}` +
+    ` C ${A.x + (M.x - A.x) * 0.6} ${A.y + (M.y - A.y) * 0.6}` +
+    ` ${M.x - tx} ${M.y - ty}` +
+    ` ${M.x} ${M.y}` +
+    ` C ${M.x + tx} ${M.y + ty}` +
+    ` ${B.x - (B.x - M.x) * 0.6} ${B.y - (B.y - M.y) * 0.6}` +
+    ` ${B.x} ${B.y}`
+  );
+}
+
+// ---- Build pool nodes ----
 function buildPools(chunks, assignments, centroids) {
   const k = centroids.length;
   const groups = Array.from({ length: k }, () => []);
@@ -341,18 +680,20 @@ function buildPools(chunks, assignments, centroids) {
 
   const nodes = [];
   const activeCentroids = [];
+  let colorIdx = 0;
+
   groups.forEach((members, i) => {
     if (!members.length) return;
     const sourceCounts = {};
     members.forEach(m => { sourceCounts[m.source] = (sourceCounts[m.source] || 0) + 1; });
     const dominant = Object.entries(sourceCounts).sort((a, b) => b[1] - a[1])[0][0];
 
-    const baseR = 18 + Math.sqrt(members.length) * 14;
+    const baseR = 20 + Math.sqrt(members.length) * 15;
     const blobCount = 5 + Math.floor(Math.random() * 3);
     const blobs = Array.from({ length: blobCount }, () => ({
       dx: (Math.random() - 0.5) * baseR,
       dy: (Math.random() - 0.5) * baseR,
-      r: baseR * (0.55 + Math.random() * 0.5),
+      r:  baseR * (0.55 + Math.random() * 0.5),
     }));
 
     nodes.push({
@@ -364,8 +705,10 @@ function buildPools(chunks, assignments, centroids) {
       members,
       r: baseR,
       blobs,
+      color: POOL_COLORS[colorIdx % POOL_COLORS.length],
     });
     activeCentroids.push(centroids[i]);
+    colorIdx++;
   });
 
   const links = [];
@@ -375,22 +718,36 @@ function buildPools(chunks, assignments, centroids) {
       if (sim > 0.3) links.push({ source: nodes[i].id, target: nodes[j].id, sim });
     }
   }
-
   return { nodes, links };
 }
 
-// ---- d3-force layout + render ----
+// ---- Load data ----
+async function loadData() {
+  const res = await fetch('/embeddings');
+  const data = await res.json();
+  if (data.error) { statusEl.textContent = data.error; return; }
 
-function runSimulation(nodes, links) {
-  d3.forceSimulation(nodes)
-    .force('charge', d3.forceManyBody().strength(-500))
-    .force('link', d3.forceLink(links).id(d => d.id).distance(d => 220 * (1 - d.sim)).strength(d => d.sim * 0.5))
-    .force('collide', d3.forceCollide().radius(d => d.r + 24))
-    .force('center', d3.forceCenter(0, 0))
-    .on('tick', () => render(nodes, links));
+  collectionNameEl.textContent = data.collection.toUpperCase();
+  const chunks = data.chunks;
+  const k = Math.min(6, Math.max(3, Math.round(Math.sqrt(chunks.length / 2))));
+  const { assignments, centroids } = kmeans(chunks.map(c => c.embedding), k);
+  const { nodes, links } = buildPools(chunks, assignments, centroids);
+  runSimulation(nodes, links);
+  statusEl.style.display = 'none';
 }
 
-function render(nodes, links) {
+// ---- Overview simulation & render ----
+function runSimulation(nodes, links) {
+  poolNodes = nodes;
+  d3.forceSimulation(nodes)
+    .force('charge', d3.forceManyBody().strength(-600))
+    .force('link', d3.forceLink(links).id(d => d.id).distance(d => 230 * (1 - d.sim)).strength(d => d.sim * 0.5))
+    .force('collide', d3.forceCollide().radius(d => d.r + 28))
+    .force('center', d3.forceCenter(0, 0))
+    .on('tick', () => renderOverview(nodes, links));
+}
+
+function renderOverview(nodes, links) {
   if (mode !== 'overview') return;
 
   linkLayer.selectAll('line')
@@ -399,30 +756,29 @@ function render(nodes, links) {
     .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
     .attr('x2', d => d.target.x).attr('y2', d => d.target.y)
     .attr('stroke', '#000')
-    .attr('stroke-opacity', d => 0.12 + d.sim * 0.25)
-    .attr('stroke-width', d => Math.max(0.5, d.sim * 2));
+    .attr('stroke-opacity', d => 0.08 + d.sim * 0.18)
+    .attr('stroke-width', d => Math.max(0.5, d.sim * 1.5));
 
-  const blobs = blobLayer.selectAll('g.blob')
+  blobLayer.selectAll('g.blob')
     .data(nodes, d => d.id)
     .join(enter => {
       const g = enter.append('g').attr('class', 'blob').style('filter', 'url(#blob-blur)');
-      g.each(function (d) {
+      g.each(function(d) {
         d3.select(this).selectAll('circle')
           .data(d.blobs)
           .join('circle')
           .attr('cx', b => b.dx)
           .attr('cy', b => b.dy)
-          .attr('r', b => b.r)
-          .attr('fill', 'rgba(70,70,70,0.32)');
+          .attr('r',  b => b.r)
+          .attr('fill', d.color)
+          .attr('opacity', 0.6);
       });
       return g;
-    });
-
-  blobs
+    })
     .attr('transform', d => `translate(${d.x},${d.y})`)
     .style('cursor', 'pointer')
-    .on('click', (_event, d) => enterDetail(d))
-    .on('mousemove', (event, d) => showTooltip(event, d))
+    .on('click', (_e, d) => enterDetail(d))
+    .on('mousemove', (e, d) => showTooltip(e, d))
     .on('mouseleave', hideTooltip);
 
   labelLayer.selectAll('text')
@@ -431,258 +787,912 @@ function render(nodes, links) {
     .attr('x', d => d.x).attr('y', d => d.y)
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'middle')
-    .style('font-weight', 700)
+    .style('font-family', "'Inter', sans-serif")
+    .style('font-weight', '700')
     .style('font-size', '12px')
-    .style('fill', '#222')
+    .style('letter-spacing', '0.5px')
+    .style('fill', '#111')
     .style('pointer-events', 'none')
     .text(d => d.label);
 }
 
-// ---- hover tooltip ----
-
 function showTooltip(event, pool) {
-  const [x, y] = d3.pointer(event, document.querySelector('.frame'));
+  const [x, y] = d3.pointer(event, frameEl);
   tooltipEl.style.display = 'block';
   tooltipEl.style.left = (x + 16) + 'px';
-  tooltipEl.style.top = (y + 16) + 'px';
-  tooltipEl.textContent = `${pool.count} chunk${pool.count === 1 ? '' : 's'} · mostly ${pool.dominant} · click to read`;
+  tooltipEl.style.top  = (y + 16) + 'px';
+  tooltipEl.textContent = `${pool.count} chunk${pool.count === 1 ? '' : 's'} · mostly ${pool.dominant} · click to open`;
 }
 
 function hideTooltip() { tooltipEl.style.display = 'none'; }
 
-// ---- zoomed-in pool detail view: PDFs as boxes, chunks as clickable dots ----
+// ---- Detail view ----
+function layoutCards(chunks) {
+  const CARD_W = 306, CARD_H = 358;
+  const PHI = 2.39996323; // golden angle (radians) for sunflower spiral
 
-function buildDetailScene(pool) {
-  const sources = Object.keys(pool.sources);
-
-  const docBoxes = sources.map((source, i) => {
-    const n = sources.length;
-    const x = (i - (n - 1) / 2) * 170;
-    const y = i % 2 === 0 ? -30 : 30; // slight stagger, same idea as the mockup
-    return { source, x, y, w: 130, h: 170 };
+  chunks.forEach((chunk, i) => {
+    if (cardPositions[chunk.id]) return;
+    // Sunflower spiral: cards spread outward in a natural organic pattern
+    const r     = 200 * Math.sqrt(i + 0.5) + (Math.random() - 0.5) * 180;
+    const theta = i * PHI + (Math.random() - 0.5) * 0.7;
+    cardPositions[chunk.id] = {
+      x: Math.cos(theta) * r - CARD_W / 2,
+      y: Math.sin(theta) * r - CARD_H / 2,
+    };
   });
-
-  const markers = [];
-  for (const box of docBoxes) {
-    const chunksForDoc = pool.members.filter(m => m.source === box.source);
-    chunksForDoc.forEach((chunk, i) => {
-      markers.push({
-        id: chunk.id,
-        chunk,
-        x: box.x - box.w / 2 + 18 + (i % 4) * 26,
-        y: box.y + box.h / 2 + 22 + Math.floor(i / 4) * 24,
-      });
-    });
-  }
-
-  const docPairs = [];
-  for (let i = 0; i < docBoxes.length; i++) {
-    for (let j = i + 1; j < docBoxes.length; j++) docPairs.push([docBoxes[i], docBoxes[j]]);
-  }
-
-  return { docBoxes, markers, docPairs };
 }
 
 function enterDetail(pool) {
   mode = 'detail';
   activePool = pool;
-  detailScene = buildDetailScene(pool);
-  clearCards();
-
-  overviewLayer.style('display', 'none');
-  detailLayer.style('display', null);
   hideTooltip();
+
+  // Colored radial gradient background
+  detailViewEl.style.background =
+    `radial-gradient(ellipse at 50% 45%, ${pool.color}cc 0%, ${pool.color}66 55%, ${pool.color}22 100%), #fff`;
+  detailViewEl.style.display = 'block';
+
+  svg.style('display', 'none');
 
   detailTitleEl.textContent = pool.label;
   detailTitleEl.style.display = 'block';
-  backBtnEl.style.display = 'inline-flex';
 
-  svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(frameEl.clientWidth / 2, frameEl.clientHeight / 2));
-  renderDetail();
+  // Double-click to rename the pool
+  detailTitleEl.ondblclick = () => {
+    detailTitleEl.contentEditable = 'true';
+    detailTitleEl.focus();
+    // Select all text
+    const range = document.createRange();
+    range.selectNodeContents(detailTitleEl);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  };
+
+  const commitRename = () => {
+    detailTitleEl.contentEditable = 'false';
+    const newLabel = detailTitleEl.textContent.trim() || pool.label;
+    detailTitleEl.textContent = newLabel;
+    pool.label = newLabel;
+    // Update the SVG label in the overview so it matches when returning to pools view
+    labelLayer.selectAll('text')
+      .filter(d => d.id === pool.id)
+      .text(newLabel);
+  };
+
+  detailTitleEl.onblur = commitRename;
+  detailTitleEl.onkeydown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); detailTitleEl.blur(); }
+    if (e.key === 'Escape') { detailTitleEl.textContent = pool.label; detailTitleEl.blur(); }
+  };
+
+  // Center canvas, start zoomed out so all cards in the pool are visible
+  const fw = frameEl.clientWidth, fh = frameEl.clientHeight;
+  detailTransform = { x: fw / 2, y: fh / 2, k: 0.55 };
+  applyDetailTransform();
+
+  layoutCards(pool.members);
+  pool.members.forEach(chunk => createSourceCard(chunk));
+  updateLines();
 }
 
 function exitDetail() {
+  const pool = activePool; // save before clearing
   mode = 'overview';
   activePool = null;
-  detailScene = null;
-  clearCards();
+  hideContextMenu();
 
-  detailLayer.style('display', 'none');
-  overviewLayer.style('display', null);
+  detailCanvasEl.querySelectorAll('.source-card, .annotation-card, .annot-icon').forEach(el => el.remove());
+  annotations = [];
+  connections = [];
+  annotLinesGroup.innerHTML = '';
+  connectionsGroup.innerHTML = '';
+  tempLineGroup.innerHTML   = '';
+
+  detailViewEl.style.display = 'none';
+  svg.style('display', null);
   detailTitleEl.style.display = 'none';
-  backBtnEl.style.display = 'none';
+  detailTitleEl.contentEditable = 'false';
+  detailTitleEl.ondblclick = null;
+  detailTitleEl.onblur = null;
+  detailTitleEl.onkeydown = null;
 
-  svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(frameEl.clientWidth / 2, frameEl.clientHeight / 2));
-}
-
-function renderDetail() {
-  const { docBoxes, markers, docPairs } = detailScene;
-
-  docLinkLayer.selectAll('line.doc-link')
-    .data(docPairs)
-    .join('line')
-    .attr('class', 'doc-link')
-    .attr('x1', d => d[0].x).attr('y1', d => d[0].y)
-    .attr('x2', d => d[1].x).attr('y2', d => d[1].y)
-    .attr('stroke', '#999')
-    .attr('stroke-dasharray', '4 4');
-
-  docLinkLayer.selectAll('text.doc-link-icon')
-    .data(docPairs)
-    .join('text')
-    .attr('class', 'doc-link-icon')
-    .attr('x', d => (d[0].x + d[1].x) / 2)
-    .attr('y', d => (d[0].y + d[1].y) / 2)
-    .attr('text-anchor', 'middle')
-    .attr('dominant-baseline', 'middle')
-    .style('font-size', '16px')
-    .text('🔗');
-
-  const boxes = docBoxLayer.selectAll('g.docbox')
-    .data(docBoxes, d => d.source)
-    .join(enter => {
-      const g = enter.append('g').attr('class', 'docbox');
-      g.append('rect').append('title');
-      g.append('text').attr('class', 'docbox-label');
-      return g;
-    });
-
-  boxes.select('rect title').text(d => d.source);
-
-  boxes.attr('transform', d => `translate(${d.x},${d.y})`);
-  boxes.select('rect')
-    .attr('x', d => -d.w / 2).attr('y', d => -d.h / 2)
-    .attr('width', d => d.w).attr('height', d => d.h)
-    .attr('rx', 8)
-    .attr('fill', '#9a9a9a')
-    .attr('stroke', '#7c7c7c');
-  boxes.select('text')
-    .attr('x', d => -d.w / 2 + 10)
-    .attr('y', d => d.h / 2 - 14)
-    .style('font-size', '10px')
-    .style('fill', '#333')
-    .text(d => truncateLabel(d.source));
-
-  const markerSel = markerLayer.selectAll('g.marker')
-    .data(markers, d => d.id)
-    .join(enter => {
-      const g = enter.append('g').attr('class', 'marker').style('cursor', 'pointer');
-      g.append('circle').attr('r', 8);
-      return g;
-    });
-
-  markerSel
-    .attr('transform', d => `translate(${d.x},${d.y})`)
-    .on('click', (_event, d) => toggleCard(d))
-    .select('circle')
-    .attr('fill', d => openCards.some(c => c.marker.id === d.id) ? '#F5A623' : '#333');
-}
-
-function projectPoint(x, y) {
-  const t = d3.zoomTransform(svg.node());
-  return { x: t.x + x * t.k, y: t.y + y * t.k };
-}
-
-function clearCards() {
-  openCards.forEach(c => c.el.remove());
-  openCards = [];
-  connectorLayer.selectAll('*').remove();
-}
-
-function toggleCard(marker) {
-  const idx = openCards.findIndex(c => c.marker.id === marker.id);
-  if (idx >= 0) {
-    openCards[idx].el.remove();
-    openCards.splice(idx, 1);
-    repositionCards();
-    renderDetail();
-    return;
+  // Reset D3 zoom to just below ZOOM_TO_DETAIL_K, centered on the pool we just left,
+  // so the zoom handler does not immediately re-enter detail on the next event.
+  if (overviewZoom) {
+    const safeK = ZOOM_TO_DETAIL_K * 0.72;
+    const fw = frameEl.clientWidth / 2, fh = frameEl.clientHeight / 2;
+    const tx = pool ? fw - pool.x * safeK : fw;
+    const ty = pool ? fh - pool.y * safeK : fh;
+    svg.call(overviewZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(safeK));
   }
-
-  const el = document.createElement('div');
-  el.className = 'note-card';
-
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'note-close';
-  closeBtn.textContent = '×';
-  closeBtn.onclick = () => toggleCard(marker);
-
-  const src = document.createElement('div');
-  src.className = 'note-source';
-  src.textContent = marker.chunk.source;
-
-  const text = document.createElement('div');
-  text.className = 'note-text';
-  text.textContent = marker.chunk.text;
-
-  el.appendChild(closeBtn);
-  el.appendChild(src);
-  el.appendChild(text);
-  frameEl.appendChild(el);
-
-  openCards.push({ marker, el });
-  repositionCards();
-  renderDetail();
 }
 
-function repositionCards() {
-  connectorLayer.selectAll('*').remove();
-  const frameW = frameEl.clientWidth;
-  const frameH = frameEl.clientHeight;
+function applyDetailTransform() {
+  const { x, y, k } = detailTransform;
+  detailCanvasEl.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
+}
 
-  openCards.forEach((card, i) => {
-    const p = projectPoint(card.marker.x, card.marker.y);
-    let cardX = Math.min(p.x + 28, frameW - 210);
-    let cardY = Math.min(Math.max(p.y - 30 + i * 8, 10), frameH - 170);
+// ---- Source card creation ----
+function createSourceCard(chunk) {
+  const pos = cardPositions[chunk.id];
 
-    card.el.style.left = cardX + 'px';
-    card.el.style.top = cardY + 'px';
+  const card = document.createElement('div');
+  card.className = 'source-card';
+  card.dataset.chunkId = chunk.id;
+  card.style.left = pos.x + 'px';
+  card.style.top  = pos.y + 'px';
 
-    connectorLayer.append('line')
-      .attr('x1', p.x).attr('y1', p.y)
-      .attr('x2', cardX).attr('y2', cardY)
-      .attr('stroke', '#999')
-      .attr('stroke-dasharray', '3 3');
+  const titleEl = document.createElement('div');
+  titleEl.className = 'card-title';
+  titleEl.textContent = chunk.source;
+
+  const textEl = document.createElement('div');
+  textEl.className = 'card-text';
+  textEl.textContent = chunk.text;
+
+  const handleEl = document.createElement('div');
+  handleEl.className = 'card-handle';
+  handleEl.textContent = '+';
+
+  card.appendChild(titleEl);
+  card.appendChild(textEl);
+  card.appendChild(handleEl);
+  detailCanvasEl.appendChild(card);
+
+  // ---- Card dragging (grab from anywhere except the + handle) ----
+  let dragging = false, dragStartX, dragStartY, cardStartX, cardStartY;
+
+  card.addEventListener('mousedown', e => {
+    if (e.target === handleEl) return; // handle manages its own events
+    dragging = true;
+    dragStartX = e.clientX; dragStartY = e.clientY;
+    cardStartX = pos.x;     cardStartY = pos.y;
+    card.style.zIndex = '18';
+    e.stopPropagation();
+  });
+
+  const onMove = e => {
+    if (!dragging) return;
+    pos.x = cardStartX + (e.clientX - dragStartX) / detailTransform.k;
+    pos.y = cardStartY + (e.clientY - dragStartY) / detailTransform.k;
+    card.style.left = pos.x + 'px';
+    card.style.top  = pos.y + 'px';
+    updateLines();
+  };
+  const onUp = () => { if (dragging) { dragging = false; card.style.zIndex = ''; } };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup',  onUp);
+
+  // ---- + handle: click = menu, mousedown+drag = connect ----
+  setupHandle(handleEl, chunk.id);
+
+  return card;
+}
+
+// ---- Handle interaction ----
+function setupHandle(handleEl, sourceId) {
+  handleEl.addEventListener('mousedown', e => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const startX = e.clientX, startY = e.clientY;
+    let dragging = false;
+
+    const onMove = e => {
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (!dragging && Math.sqrt(dx * dx + dy * dy) > 5) {
+        dragging = true;
+        hideContextMenu();
+      }
+      if (dragging) {
+        const cv = clientToCanvas(e.clientX, e.clientY);
+        drawTempLine(sourceId, cv.x, cv.y);
+        // Highlight potential targets (source cards + annotation cards)
+        detailCanvasEl.querySelectorAll('.source-card, .annotation-card').forEach(c => {
+          const id = c.dataset.chunkId || c.dataset.annotId;
+          if (id && String(id) !== String(sourceId) && isClientOverCard(e.clientX, e.clientY, c)) {
+            c.classList.add('connect-target-hint');
+          } else {
+            c.classList.remove('connect-target-hint');
+          }
+        });
+      }
+    };
+
+    const onUp = e => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      detailCanvasEl.querySelectorAll('.connect-target-hint').forEach(c => c.classList.remove('connect-target-hint'));
+
+      if (dragging) {
+        clearTempLine();
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+        const targetCard  = el?.closest('.source-card');
+        const targetAnnot = el?.closest('.annotation-card');
+        const targetId    = targetCard?.dataset.chunkId || targetAnnot?.dataset.annotId;
+        if (targetId && String(targetId) !== String(sourceId)) {
+          createConnection(String(sourceId), String(targetId));
+        }
+      } else {
+        showContextMenu(sourceId, e.clientX, e.clientY);
+      }
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   });
 }
 
-// ---- boot ----
+function isClientOverCard(cx, cy, cardEl) {
+  const r = cardEl.getBoundingClientRect();
+  return cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+}
 
-function init() {
-  frameEl = document.querySelector('.frame');
-  statusEl = document.getElementById('status');
-  tooltipEl = document.getElementById('tooltip');
-  detailTitleEl = document.getElementById('detailTitle');
-  backBtnEl = document.getElementById('backBtn');
+// ---- Coordinate helpers ----
+function clientToCanvas(clientX, clientY) {
+  const r = frameEl.getBoundingClientRect();
+  const { x: tx, y: ty, k } = detailTransform;
+  return { x: (clientX - r.left - tx) / k, y: (clientY - r.top - ty) / k };
+}
 
-  svg = d3.select('#viz');
-  viewport = svg.select('.viewport');
-  overviewLayer = viewport.select('.overview');
-  linkLayer = overviewLayer.select('.links');
-  blobLayer = overviewLayer.select('.blobs');
-  labelLayer = overviewLayer.select('.labels');
+// ---- Context menu ----
+function showContextMenu(sourceId, clientX, clientY) {
+  ctxSourceId = sourceId;
+  const r = frameEl.getBoundingClientRect();
+  contextMenuEl.style.left = (clientX - r.left + 10) + 'px';
+  contextMenuEl.style.top  = (clientY - r.top  - 16) + 'px';
+  contextMenuEl.style.display = 'flex';
+}
 
-  detailLayer = viewport.select('.detail');
-  docLinkLayer = detailLayer.select('.doc-links');
-  docBoxLayer = detailLayer.select('.doc-boxes');
-  markerLayer = detailLayer.select('.markers');
-  connectorLayer = svg.select('.connectors');
+function hideContextMenu() {
+  contextMenuEl.style.display = 'none';
+  ctxSourceId = null;
+}
 
-  zoomBehavior = d3.zoom()
-    .scaleExtent([0.3, 3])
-    .clickDistance(5) // lets a small drag still register as a click on a blob/marker
-    .on('zoom', (event) => {
+// ---- Connection helpers ----
+function getCardCenter(id) {
+  // Source card?
+  const srcCard = detailCanvasEl.querySelector(`.source-card[data-chunk-id="${id}"]`);
+  if (srcCard) {
+    const pos = cardPositions[id];
+    return pos
+      ? { x: pos.x + srcCard.offsetWidth / 2, y: pos.y + srcCard.offsetHeight / 2 }
+      : { x: 0, y: 0 };
+  }
+  // Annotation card? (id is the ann.id number, may come in as string)
+  const ann = annotations.find(a => String(a.id) === String(id));
+  if (ann) return { x: ann.x + 130, y: ann.y + 130 };
+  return { x: 0, y: 0 };
+}
+
+function updateLines() {
+  // ---- Single-source annotation curves (card-type attachments) ----
+  annotations.filter(a => a.attachType === 'card').forEach(ann => {
+    if (!ann.lineEl) return;
+    const anchor = getCardCenter(ann.attachCardId);
+
+    if (ann.minimized && ann.iconEl) {
+      const ix = ann.iconManualPos ? ann.iconManualPos.x : anchor.x + 34;
+      const iy = ann.iconManualPos ? ann.iconManualPos.y : anchor.y - 46;
+      ann.iconEl.style.left = ix + 'px';
+      ann.iconEl.style.top  = iy + 'px';
+      ann.lineEl.setAttribute('d', twoPointPath(anchor, { x: ix + 22, y: iy + 22 }));
+    } else if (!ann.minimized) {
+      ann.lineEl.setAttribute('d', twoPointPath(anchor, { x: ann.x + 130, y: ann.y + 130 }));
+    }
+  });
+
+  // ---- Connection lines — may route through an annotation card as a waypoint ----
+  connections.forEach(conn => {
+    if (!conn.lineEl) return;
+    const src = getCardCenter(conn.sourceId);
+    const tgt = getCardCenter(conn.targetId);
+    const connAnn = conn.annotId != null ? annotations.find(a => a.id === conn.annotId) : null;
+
+    let d;
+    if (connAnn && !connAnn.minimized) {
+      // Route A → annotation card center → B
+      d = threePointPath(src, { x: connAnn.x + 130, y: connAnn.y + 130 }, tgt);
+      if (conn.ghostIconEl) conn.ghostIconEl.style.opacity = '0';
+    } else if (connAnn && connAnn.minimized && connAnn.iconEl) {
+      // Icon tethers to connection midpoint unless manually dragged
+      const mx = (src.x + tgt.x) / 2, my = (src.y + tgt.y) / 2;
+      const ix = connAnn.iconManualPos ? connAnn.iconManualPos.x : mx + 34;
+      const iy = connAnn.iconManualPos ? connAnn.iconManualPos.y : my - 46;
+      connAnn.iconEl.style.left = ix + 'px';
+      connAnn.iconEl.style.top  = iy + 'px';
+      d = threePointPath(src, { x: ix + 22, y: iy + 22 }, tgt);
+      if (conn.ghostIconEl) conn.ghostIconEl.style.opacity = '0';
+    } else {
+      d = twoPointPath(src, tgt);
+      // Update ghost icon to curve midpoint (approximate: straight midpoint is close enough)
+      if (conn.ghostIconEl) {
+        conn.ghostIconEl.setAttribute('x', (src.x + tgt.x) / 2);
+        conn.ghostIconEl.setAttribute('y', (src.y + tgt.y) / 2);
+      }
+    }
+
+    conn.lineEl.setAttribute('d', d);
+    conn.hitLineEl.setAttribute('d', d);
+  });
+}
+
+function drawTempLine(sourceId, cx, cy) {
+  tempLineGroup.innerHTML = '';
+  const src = getCardCenter(sourceId);
+  const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  l.setAttribute('class', 'temp-line');
+  l.setAttribute('x1', src.x); l.setAttribute('y1', src.y);
+  l.setAttribute('x2', cx);    l.setAttribute('y2', cy);
+  tempLineGroup.appendChild(l);
+}
+
+function clearTempLine() { tempLineGroup.innerHTML = ''; }
+
+// ---- Create connection between two source cards ----
+function createConnection(sourceId, targetId) {
+  if (connections.find(c =>
+    (c.sourceId === sourceId && c.targetId === targetId) ||
+    (c.sourceId === targetId && c.targetId === sourceId))) return;
+
+  const src = getCardCenter(sourceId);
+  const tgt = getCardCenter(targetId);
+  const initD = twoPointPath(src, tgt);
+
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+  const visLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  visLine.setAttribute('class', 'connection-line');
+  visLine.setAttribute('d', initD);
+
+  const hitLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  hitLine.setAttribute('class', 'connection-hit');
+  hitLine.setAttribute('d', initD);
+
+  // Ghost ❉ icon — appears at 0.5 opacity on hover to hint "double-click to annotate"
+  const ghostIcon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  ghostIcon.textContent = '❉';
+  ghostIcon.setAttribute('text-anchor', 'middle');
+  ghostIcon.setAttribute('dominant-baseline', 'middle');
+  ghostIcon.setAttribute('font-size', '18');
+  ghostIcon.setAttribute('font-family', 'Inter, sans-serif');
+  ghostIcon.setAttribute('fill', '#6a6a6a');
+  ghostIcon.setAttribute('x', (src.x + tgt.x) / 2);
+  ghostIcon.setAttribute('y', (src.y + tgt.y) / 2);
+  ghostIcon.setAttribute('pointer-events', 'none');
+  ghostIcon.style.opacity = '0';
+  ghostIcon.style.transition = 'opacity 0.15s';
+
+  g.appendChild(visLine);
+  g.appendChild(hitLine);
+  g.appendChild(ghostIcon);
+  connectionsGroup.appendChild(g);
+
+  const conn = { id: Date.now(), sourceId, targetId, lineEl: visLine, hitLineEl: hitLine, ghostIconEl: ghostIcon, annotId: null };
+  connections.push(conn);
+
+  hitLine.addEventListener('mouseenter', () => {
+    if (conn.annotId == null) ghostIcon.style.opacity = '0.5';
+  });
+  hitLine.addEventListener('mouseleave', () => {
+    ghostIcon.style.opacity = '0';
+  });
+
+  // Double-click connection line → annotation card acts as waypoint in the connection path
+  hitLine.addEventListener('dblclick', e => {
+    e.stopPropagation();
+    if (conn.annotId != null) return;
+    const s = getCardCenter(sourceId), t = getCardCenter(targetId);
+    const ann = createAnnotation('connection', conn.id, (s.x + t.x) / 2 - 130, (s.y + t.y) / 2 - 130);
+    conn.annotId = ann.id;
+    ghostIcon.style.opacity = '0';
+  });
+}
+
+// ---- Create annotation card ----
+// attachType: 'card' (attached to a source card center) | 'connection' (attached to a connection line midpoint)
+// attachId:   chunkId when attachType='card', conn.id when attachType='connection'
+function createAnnotation(attachType, attachId, x, y) {
+  const ann = {
+    id: Date.now(),
+    attachType,
+    attachCardId: attachType === 'card' ? attachId : null,
+    attachConnId: attachType === 'connection' ? attachId : null,
+    text: '', minimized: false,
+    x, y,
+    savedCardX: x, savedCardY: y,
+    cardEl: null, iconEl: null,
+    // lineEl only exists for card-type attachments
+    lineEl: null,
+    // iconManualPos: if the user drags the minimized icon, its position becomes free
+    iconManualPos: null,
+  };
+
+  const card = document.createElement('div');
+  card.className = 'annotation-card';
+  card.dataset.annotId = ann.id;
+  card.style.left = x + 'px';
+  card.style.top  = y + 'px';
+
+  const label = document.createElement('div');
+  label.className = 'annot-label';
+  label.textContent = 'ANNOTATION';
+
+  const textEl = document.createElement('div');
+  textEl.className = 'annot-text';
+  textEl.contentEditable = 'true';
+  textEl.setAttribute('data-placeholder', 'Type your annotation…');
+
+  const handleEl = document.createElement('div');
+  handleEl.className = 'card-handle';
+  handleEl.textContent = '+';
+
+  card.appendChild(label);
+  card.appendChild(textEl);
+  card.appendChild(handleEl);
+  detailCanvasEl.appendChild(card);
+  ann.cardEl = card;
+
+  setupHandle(handleEl, String(ann.id));
+
+  textEl.addEventListener('blur', () => { ann.text = textEl.textContent; });
+
+  card.addEventListener('dblclick', e => {
+    if (e.target === textEl) return;
+    minimizeAnnotation(ann);
+  });
+
+  let annotDragging = false, aDragStartX, aDragStartY, aCardStartX, aCardStartY;
+
+  card.addEventListener('mousedown', e => {
+    annotDragging = false;
+    aDragStartX = e.clientX; aDragStartY = e.clientY;
+    aCardStartX = ann.x;     aCardStartY = ann.y;
+    card.style.zIndex = '18';
+    e.stopPropagation();
+  });
+
+  const onAnnotMove = e => {
+    if (aDragStartX === undefined) return;
+    const dx = e.clientX - aDragStartX, dy = e.clientY - aDragStartY;
+    if (!annotDragging && Math.hypot(dx, dy) > 5) {
+      annotDragging = true;
+      textEl.blur();
+    }
+    if (annotDragging) {
+      ann.x = aCardStartX + dx / detailTransform.k;
+      ann.y = aCardStartY + dy / detailTransform.k;
+      card.style.left = ann.x + 'px';
+      card.style.top  = ann.y + 'px';
+      updateLines(); // redraws both annot-lines AND connection paths that route through this card
+    }
+  };
+
+  const onAnnotUp = () => {
+    if (annotDragging) { ann.savedCardX = ann.x; ann.savedCardY = ann.y; }
+    annotDragging = false;
+    aDragStartX = undefined;
+    card.style.zIndex = '';
+  };
+
+  document.addEventListener('mousemove', onAnnotMove);
+  document.addEventListener('mouseup', onAnnotUp);
+
+  // Card-type attachments get a separate curved line to their source card.
+  // Connection-type and free annotations don't need a line at creation time.
+  if (attachType === 'card') {
+    const anchor = getCardCenter(attachId);
+    const lineEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    lineEl.setAttribute('class', 'annot-line');
+    lineEl.setAttribute('d', twoPointPath(anchor, { x: x + 130, y: y + 130 }));
+    annotLinesGroup.appendChild(lineEl);
+    ann.lineEl = lineEl;
+  }
+
+  annotations.push(ann);
+  // Refresh connection paths so connection-type annotations reshape them immediately
+  updateLines();
+  textEl.focus();
+  return ann;
+}
+
+function minimizeAnnotation(ann) {
+  ann.minimized = true;
+  ann.savedCardX = ann.x;
+  ann.savedCardY = ann.y;
+  ann.text = ann.cardEl.querySelector('.annot-text').textContent;
+  ann.cardEl.style.display = 'none';
+
+  const icon = document.createElement('div');
+  icon.className = 'annot-icon';
+  icon.textContent = '❉';
+  icon.title = ann.text || 'Annotation';
+  detailCanvasEl.appendChild(icon);
+  ann.iconEl = icon;
+
+  updateLines(); // initial positioning
+
+  // Drag the icon — same feel as dragging the annotation card
+  let iconDragging = false, iDragStartX, iDragStartY, iStartLeft, iStartTop;
+
+  icon.addEventListener('mousedown', e => {
+    e.stopPropagation();
+    iconDragging = false;
+    iDragStartX = e.clientX; iDragStartY = e.clientY;
+    iStartLeft  = parseFloat(icon.style.left);
+    iStartTop   = parseFloat(icon.style.top);
+    icon.style.zIndex = '20';
+  });
+
+  const onIconMove = e => {
+    if (iDragStartX === undefined) return;
+    const dx = e.clientX - iDragStartX, dy = e.clientY - iDragStartY;
+    if (!iconDragging && Math.hypot(dx, dy) > 5) iconDragging = true;
+    if (iconDragging) {
+      const newLeft = iStartLeft + dx / detailTransform.k;
+      const newTop  = iStartTop  + dy / detailTransform.k;
+      icon.style.left = newLeft + 'px';
+      icon.style.top  = newTop  + 'px';
+      ann.iconManualPos = { x: newLeft, y: newTop };
+      // Keep saved card position in sync so expand() puts card near the icon
+      ann.savedCardX = newLeft - 108;
+      ann.savedCardY = newTop  - 108;
+      updateLines();
+    }
+  };
+
+  const onIconUp = () => {
+    iconDragging = false;
+    iDragStartX = undefined;
+    icon.style.zIndex = '';
+  };
+
+  document.addEventListener('mousemove', onIconMove);
+  document.addEventListener('mouseup', onIconUp);
+
+  icon.addEventListener('dblclick', () => expandAnnotation(ann));
+}
+
+function expandAnnotation(ann) {
+  ann.minimized = false;
+  ann.iconManualPos = null; // allow tether to reset on next minimize
+  if (ann.iconEl) { ann.iconEl.remove(); ann.iconEl = null; }
+  ann.x = ann.savedCardX;
+  ann.y = ann.savedCardY;
+  const card = ann.cardEl;
+  card.style.display = 'flex';
+  card.style.left = ann.x + 'px';
+  card.style.top  = ann.y + 'px';
+  const textEl = card.querySelector('.annot-text');
+  if (textEl && ann.text) textEl.textContent = ann.text;
+  updateLines();
+}
+
+// ---- Connect-source mode (from context menu) ----
+function enterConnectMode(sourceId) {
+  detailViewEl.classList.add('connect-mode-active');
+  hideContextMenu();
+
+  const onMove = e => {
+    const cv = clientToCanvas(e.clientX, e.clientY);
+    drawTempLine(sourceId, cv.x, cv.y);
+  };
+
+  const cancel = () => {
+    clearTempLine();
+    detailViewEl.classList.remove('connect-mode-active');
+    detailViewEl.removeEventListener('mousemove', onMove);
+    detailCanvasEl.querySelectorAll('.connect-target-hint').forEach(c => c.classList.remove('connect-target-hint'));
+  };
+
+  const onClick = e => {
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const targetCard = el?.closest('.source-card');
+    if (targetCard && targetCard.dataset.chunkId !== sourceId) {
+      createConnection(sourceId, targetCard.dataset.chunkId);
+    }
+    cancel();
+    detailViewEl.removeEventListener('click', onClick);
+    document.removeEventListener('keydown', onKey);
+  };
+
+  const onKey = e => {
+    if (e.key === 'Escape') {
+      cancel();
+      detailViewEl.removeEventListener('click', onClick);
+      document.removeEventListener('keydown', onKey);
+    }
+  };
+
+  detailViewEl.addEventListener('mousemove', onMove);
+  document.addEventListener('keydown', onKey);
+  // Small delay so the menu-close click doesn't immediately fire
+  setTimeout(() => detailViewEl.addEventListener('click', onClick), 80);
+}
+
+// ---- Detail view pan & zoom ----
+function initDetailZoom() {
+  // Scroll to zoom
+  frameEl.addEventListener('wheel', e => {
+    if (mode !== 'detail') return;
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.06 : 1 / 1.06;
+    const r = frameEl.getBoundingClientRect();
+    const mx = e.clientX - r.left, my = e.clientY - r.top;
+    const newK = Math.max(0.15, Math.min(5, detailTransform.k * factor));
+    const ratio = newK / detailTransform.k;
+    detailTransform.x = mx - (mx - detailTransform.x) * ratio;
+    detailTransform.y = my - (my - detailTransform.y) * ratio;
+    detailTransform.k = newK;
+    applyDetailTransform();
+    // Zoom out far enough → return to overview
+    if (detailTransform.k < ZOOM_TO_POOLS_K) { exitDetail(); return; }
+  }, { passive: false });
+
+  // Double-click empty canvas background → create a free-standing annotation
+  detailViewEl.addEventListener('dblclick', e => {
+    if (mode !== 'detail') return;
+    if (e.target !== detailViewEl && e.target !== detailCanvasEl) return;
+    hideContextMenu();
+    const cv = clientToCanvas(e.clientX, e.clientY);
+    createAnnotation('free', null, cv.x - 130, cv.y - 130);
+  });
+
+  // Drag background to pan
+  let panning = false, panStartX, panStartY, panTx, panTy;
+
+  detailViewEl.addEventListener('mousedown', e => {
+    if (mode !== 'detail') return;
+    const isBackground = e.target === detailViewEl || e.target === detailCanvasEl;
+    const linesSvgEl = document.getElementById('lines-svg');
+    if (!isBackground && !e.target.closest('#lines-svg')) return;
+    panning = true;
+    panStartX = e.clientX; panStartY = e.clientY;
+    panTx = detailTransform.x; panTy = detailTransform.y;
+    detailViewEl.style.cursor = 'grabbing';
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!panning) return;
+    detailTransform.x = panTx + (e.clientX - panStartX);
+    detailTransform.y = panTy + (e.clientY - panStartY);
+    applyDetailTransform();
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (panning) detailViewEl.style.cursor = '';
+    panning = false;
+  });
+}
+
+// ---- Overview zoom ----
+function initOverviewZoom() {
+  let lastK = 1;
+  overviewZoom = d3.zoom()
+    .scaleExtent([0.2, 6])
+    .clickDistance(5)
+    .on('zoom', event => {
       viewport.attr('transform', event.transform);
-      if (mode === 'detail') repositionCards();
+
+      // [DISABLED] Zoom-to-detail: enter pool card view by scrolling in past threshold.
+      // Re-enable by uncommenting the block below.
+      /*
+      if (mode === 'overview' && poolNodes.length > 0 &&
+          event.transform.k >= ZOOM_TO_DETAIL_K && event.transform.k > lastK) {
+        const se = event.sourceEvent;
+        const r  = frameEl.getBoundingClientRect();
+        const cx = se
+          ? (se.clientX - r.left  - event.transform.x) / event.transform.k
+          : (r.width  / 2 - event.transform.x) / event.transform.k;
+        const cy = se
+          ? (se.clientY - r.top   - event.transform.y) / event.transform.k
+          : (r.height / 2 - event.transform.y) / event.transform.k;
+
+        let nearest = null, minDist = Infinity;
+        poolNodes.forEach(n => {
+          if (n.x == null) return;
+          const dist = Math.hypot(n.x - cx, n.y - cy);
+          if (dist < minDist) { minDist = dist; nearest = n; }
+        });
+        if (nearest) enterDetail(nearest);
+      }
+      */
+      lastK = event.transform.k;
     });
 
-  svg.call(zoomBehavior)
-     .call(zoomBehavior.transform, d3.zoomIdentity.translate(frameEl.clientWidth / 2, frameEl.clientHeight / 2));
+  svg.call(overviewZoom)
+    .call(overviewZoom.transform, d3.zoomIdentity.translate(frameEl.clientWidth / 2, frameEl.clientHeight / 2));
+}
 
-  document.getElementById('zoomIn').onclick = () => svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.2);
-  document.getElementById('zoomOut').onclick = () => svg.transition().duration(200).call(zoomBehavior.scaleBy, 1 / 1.2);
-  document.getElementById('uploadBtn').onclick = () => alert('Reindexing not wired up yet — run "node rag_web.js build" to add new PDFs.');
-  backBtnEl.onclick = exitDetail;
+// ---- Zoom buttons (work for both modes) ----
+function initZoomButtons() {
+  document.getElementById('zoomIn').onclick = () => {
+    if (mode === 'overview') {
+      svg.transition().duration(220).call(overviewZoom.scaleBy, 1.25);
+    } else {
+      const fw = frameEl.clientWidth / 2, fh = frameEl.clientHeight / 2;
+      const newK = Math.min(5, detailTransform.k * 1.25);
+      const ratio = newK / detailTransform.k;
+      detailTransform.x = fw - (fw - detailTransform.x) * ratio;
+      detailTransform.y = fh - (fh - detailTransform.y) * ratio;
+      detailTransform.k = newK;
+      applyDetailTransform();
+    }
+  };
+
+  document.getElementById('zoomOut').onclick = () => {
+    if (mode === 'overview') {
+      svg.transition().duration(220).call(overviewZoom.scaleBy, 1 / 1.25);
+    } else {
+      const fw = frameEl.clientWidth / 2, fh = frameEl.clientHeight / 2;
+      const newK = Math.max(0.15, detailTransform.k / 1.25);
+      if (newK < ZOOM_TO_POOLS_K) { exitDetail(); return; }
+      const ratio = newK / detailTransform.k;
+      detailTransform.x = fw - (fw - detailTransform.x) * ratio;
+      detailTransform.y = fh - (fh - detailTransform.y) * ratio;
+      detailTransform.k = newK;
+      applyDetailTransform();
+    }
+  };
+}
+
+// ---- Are.na panel ----
+function initArenaPanel() {
+  const connectBtn  = document.getElementById('connectBtn');
+  const panel       = document.getElementById('arena-panel');
+  const slugInput   = document.getElementById('arena-slug-input');
+  const fetchBtn    = document.getElementById('arena-fetch-btn');
+  const statusEl    = document.getElementById('arena-status');
+
+  // Toggle panel open/close
+  connectBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = panel.style.display === 'block';
+    panel.style.display = isOpen ? 'none' : 'block';
+    connectBtn.classList.toggle('active', !isOpen);
+    if (!isOpen) { slugInput.focus(); statusEl.textContent = ''; }
+  });
+
+  // Close when clicking outside
+  document.addEventListener('click', e => {
+    if (!panel.contains(e.target) && e.target !== connectBtn) {
+      panel.style.display = 'none';
+      connectBtn.classList.remove('active');
+    }
+  });
+
+  // Submit on Enter key in the input
+  slugInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') fetchArena();
+  });
+
+  fetchBtn.addEventListener('click', fetchArena);
+
+  async function fetchArena() {
+    // Accept full Are.na URLs (https://www.are.na/username/channel-slug) or bare slugs
+    const raw = slugInput.value.trim();
+    if (!raw) { statusEl.textContent = 'Please enter a channel URL or slug.'; return; }
+    // Extract the last path segment as the slug
+    const slug = raw.replace(/\/+$/, '').split('/').pop();
+    if (mode !== 'detail' || !activePool) {
+      statusEl.textContent = "Open a pool's card view first.";
+      return;
+    }
+
+    statusEl.textContent = 'Fetching…';
+    fetchBtn.disabled = true;
+
+    try {
+      // Are.na public API — up to 100 blocks per request (no auth needed for public channels)
+      const url = `https://api.are.na/v2/channels/${encodeURIComponent(slug)}/contents?per=100&direction=desc`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        statusEl.textContent = res.status === 404
+          ? `Channel "${slug}" not found.`
+          : `Are.na error: ${res.status}`;
+        return;
+      }
+
+      const data = await res.json();
+      const channelTitle = data.title || slug;
+      const textBlocks = (data.contents || []).filter(b => b.class === 'Text' && b.content);
+
+      if (textBlocks.length === 0) {
+        statusEl.textContent = `No text blocks found in "${channelTitle}".`;
+        return;
+      }
+
+      // Build chunk objects and inject into the current pool
+      const newChunks = textBlocks.map(block => ({
+        id:        `arena-${block.id}`,
+        text:      block.content,
+        source:    `Are.na / ${channelTitle}`,
+        embedding: null,   // no embedding — not part of RAG clustering
+        arenaId:   block.id,
+      }));
+
+      // Filter out any blocks already added (re-pull safety)
+      const existingIds = new Set(activePool.members.map(m => m.id));
+      const fresh = newChunks.filter(c => !existingIds.has(c.id));
+
+      if (fresh.length === 0) {
+        statusEl.textContent = `All blocks from "${channelTitle}" already added.`;
+        return;
+      }
+
+      // Add to pool membership so re-entering the pool restores them
+      activePool.members.push(...fresh);
+
+      // Position new cards (existing ones are skipped by layoutCards)
+      layoutCards(activePool.members);
+
+      // Render cards
+      fresh.forEach(chunk => createSourceCard(chunk));
+
+      statusEl.textContent = `✓ Added ${fresh.length} block${fresh.length > 1 ? 's' : ''} from "${channelTitle}".`;
+      slugInput.value = '';
+    } catch (err) {
+      statusEl.textContent = `Error: ${err.message}`;
+    } finally {
+      fetchBtn.disabled = false;
+    }
+  }
+}
+
+// ---- Init ----
+function init() {
+  frameEl          = document.getElementById('frame');
+  statusEl         = document.getElementById('status');
+  tooltipEl        = document.getElementById('tooltip');
+  detailTitleEl    = document.getElementById('detail-title');
+  collectionNameEl = document.getElementById('collection-name');
+  detailViewEl     = document.getElementById('detail-view');
+  detailCanvasEl   = document.getElementById('detail-canvas');
+  annotLinesGroup  = document.getElementById('annot-lines-group');
+  connectionsGroup = document.getElementById('connections-group');
+  tempLineGroup    = document.getElementById('temp-line-group');
+  contextMenuEl    = document.getElementById('context-menu');
+
+  svg         = d3.select('#viz');
+  viewport    = svg.select('.viewport');
+  linkLayer   = svg.select('.links');
+  blobLayer   = svg.select('.blobs');
+  labelLayer  = svg.select('.labels');
+
+  initOverviewZoom();
+  initDetailZoom();
+  initZoomButtons();
+
+  document.getElementById('uploadBtn').onclick = () =>
+    alert('Reindexing not wired up yet — run "node rag_web.js build" to add new PDFs.');
+  document.getElementById('exportBtn').onclick = () =>
+    alert('Export not wired up yet.');
+
+  initArenaPanel();
+
+  // Context menu actions
+  document.getElementById('ctx-annotate').onclick = () => {
+    if (!ctxSourceId) return;
+    const pos = cardPositions[ctxSourceId];
+    createAnnotation('card', ctxSourceId, pos.x + 326, pos.y);
+    hideContextMenu();
+  };
+
+  document.getElementById('ctx-connect').onclick = () => {
+    if (!ctxSourceId) return;
+    enterConnectMode(ctxSourceId);
+  };
+
+  // Close context menu when clicking elsewhere
+  document.addEventListener('click', e => {
+    if (contextMenuEl.style.display !== 'none' &&
+        !contextMenuEl.contains(e.target) &&
+        !e.target.classList.contains('card-handle')) {
+      hideContextMenu();
+    }
+  });
 
   loadData();
 }
