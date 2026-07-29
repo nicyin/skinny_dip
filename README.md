@@ -75,7 +75,7 @@ You can check out more info about the embedding viz in the doc: [VISUALIZE](js/V
 29/07/26
 - Updates to [`visualize-d3.html`](visualize-d3.html):
     - This version uses LLM-generated pools based on uploaded docs (Ambika's work), and lets you annotate and connect chunks in the Cards view.
-    - I used Small+Esoteric+Ancestral AI zines as my test material but they were too big to include on github. Save them and add them to the /docs folder.
+    - I used [Small](https://drive.google.com/file/d/1N7HonT_Zf0YAtnLImIT-6cnFydsW-x7G/view) + [Esoteric](https://drive.google.com/file/d/1yYgO60wMiA2n8X0lKjZLhWdiGcTODtuc/view) + [Ancestral](https://drive.google.com/file/d/1K00R6yrfa-KBJXho8u8icm6mu8UAzxI3/view) AI zines as my test material but they were too big to include on github. Save them and add them to the /docs folder.
 - Style/visual:
     - Added some AIxD-inspired color!
     - Card styles updated: Source and Annotation
@@ -92,4 +92,4 @@ You can check out more info about the embedding viz in the doc: [VISUALIZE](js/V
     - Making your own pools from blank
     - Adding, deleting cards
     - Image and links as sources
-    - See [`/plans'](/plans) for possible paths for embedding other Are.na media and also for Export flow
+    - See [/plans](/plans) for possible paths for embedding other Are.na media and also for Export flow
