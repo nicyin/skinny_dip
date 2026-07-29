@@ -3,15 +3,26 @@
 ## Project Structure
 
 ```
-skinny_dip_proto/
+skinny_dip/
 │
-├── docs/              ← drop your PDFs here
+├── docs/                    ← drop your PDFs here
 │
-└── js/                ← JavaScript version (Express + ChromaDB)
-    ├── README.md
-    ├── package.json
-    ├── rag.js         ← CLI
-    └── rag_web.js     ← web UI  →  http://localhost:6601
+├── js/                      ← Express + ChromaDB app
+│   ├── README.md
+│   ├── VISUALIZE.md         ← explainer for the visualizer pages
+│   ├── package.json
+│   ├── rag.js               ← CLI (build / ask / stats)
+│   ├── rag_web.js           ← web server  →  http://localhost:6601
+│   ├── visualize.html       ← pools viz (p5.js + canvas)
+│   └── visualize-d3.html    ← pools viz (D3.js + SVG)
+│
+├── plans/                   ← feature planning docs
+│   ├── ARENA_EMBEDDING.md
+│   └── EXPORT.md
+│
+├── rag_database/            ← Chroma's on-disk store (gitignored)
+├── venv/                    ← Python venv for Chroma server (gitignored)
+└── AGENTS.md                ← instructions for AI coding agents
 ```
 
 ---
@@ -33,7 +44,7 @@ skinny_dip_proto/
 ## Quick Start
 ### 0. Clone the repo
  
-`git clone https://github.com/computationalmama/skinny_dip_proto.git`
+`git clone https://github.com/nicyin/skinny_dip.git`
 
 ### 1. Install Ollama and pull models
 
@@ -62,18 +73,19 @@ You can check out more info about the embedding viz in the doc: [VISUALIZE](js/V
 ## Design Updates
 
 29/07/26
-- Updates to [`visualize-d3.html`](visualize-d3.html): current version shows LLM-generated pools based on uploaded docs, and lets you annotate and connect chunks in the Cards view.
-- Style/visual changes:
-    - Colors updated
+- Updates to [`visualize-d3.html`](visualize-d3.html):
+    - This version uses LLM-generated pools based on uploaded docs (Ambika's work), and lets you annotate and connect chunks in the Cards view.
+    - I used Small+Esoteric+Ancestral AI zines as my test material but they were too big to include on github. Save them and add them to the /docs folder.
+- Style/visual:
+    - Added some AIxD-inspired color!
     - Card styles updated: Source and Annotation
 - Interactions:
-    - Click on Pool to zoom into Card view. Zoom in not implemented yet, too erratic
-- Added annotation flow in Cards view:
-    - Card interactions: annotate, create source
-    - Double clicking in space adds annotation
-    - Both card types should be draggable
-- Other features:
-    - Double clicking title in Card View can update title, saves it in Pool View as well
+    - Click on Pool to zoom into Card view (zooming in not implemented yet, too erratic)
+    - Double clicking title in Card View to update title, saves it in Pool View as well
+    - Annotation flow in Cards view:
+        - Card interactions: annotate, create source (TBD)
+        - Double click in blank space to add annotation
+        - Both card types should be draggable
 - Test/beta features:
     - Are.na flow to add **text** blocks. Does not save/update at the moment, only for testing in Cards view
 - Next steps:
